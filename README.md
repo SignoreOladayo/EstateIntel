@@ -5,8 +5,8 @@
 1. Clone this repository
 2. Generate an env file by running `copy .env.example .env`
 3. Set up env with your database name, user and password
-4. Run `php artisan key:generate`
-5. Run `composer install`
+4. Run `composer install`
+5. Run `php artisan key:generate`
 6. After setting up the env, run `php artisan migrate` to migrate the database
 7. Then finally run `php artisan serve` to start the server
 
