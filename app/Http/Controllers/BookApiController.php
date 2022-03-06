@@ -133,10 +133,9 @@ class BookApiController extends Controller
         $book = Book::query()->whereLike(['name', 'country', 'publisher', 'release_date'], $search)->get();
 
         if (count($book) > 0){
-            return $this->successCall(200, ApiStatusMessageResponse::SUCCESS, $book);
+            return $this->successCall(200, ApiStatusMessageResponse::SUCCESS, BookResource::collection($book));
         }
 
         return $this->successCall(404, ApiStatusMessageResponse::NOT_FOUND);
-
     }
 }

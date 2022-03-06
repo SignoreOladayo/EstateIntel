@@ -32,7 +32,7 @@ class BookApiService
             $response = Http::get($this->apiBaseUrl . $nameOfBook);
 
             $response = $response->json();
-//            dd($response);
+
             if (count($response) > 0) {
                 $response = $this->renameAndSuppressUnwantedDataFromResponse($response);
 
@@ -53,7 +53,7 @@ class BookApiService
     {
         foreach ($response as $key => $value) {
             $response[$key]['number_of_pages'] = $value["numberOfPages"];
-            $response[$key]['released_date'] = $value["released"];
+            $response[$key]['release_date'] = $value["released"];
             unset($response[$key]["url"]);
             unset($response[$key]["characters"]);
             unset($response[$key]["povCharacters"]);

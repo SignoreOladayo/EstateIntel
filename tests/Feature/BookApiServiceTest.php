@@ -56,7 +56,7 @@ class BookApiServiceTest extends TestCase
                     "publisher" => "Jade",
                     "country" => "Nigeria",
                     "number_of_pages" => 900,
-                    "released_date" => "1996-08-01"
+                    "release_date" => "1996-08-01"
                 ]
             ]
         ];

@@ -2,11 +2,19 @@
 
 namespace App\Exceptions;
 
+use App\Enum\ApiStatusMessageResponse;
+use App\Traits\ApiResponder;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Response;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Throwable;
 
 class Handler extends ExceptionHandler
 {
+    use ApiResponder;
     /**
      * A list of the exception types that are not reported.
      *
@@ -37,5 +45,35 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+    }
+
+    /**
+     * Render an exception into an HTTP response.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Throwable  $exception
+     * @return \Symfony\Component\HttpFoundation\Response
+     *
+     * @throws \Throwable
+     */
+    public function render($request, Throwable $exception): \Symfony\Component\HttpFoundation\Response
+    {
+        if ($exception instanceof  ValidationException){
+            return $this->convertValidationExceptionToResponse($exception,$request);
+        }
+
+        if ($exception instanceof HttpException){
+            return $this->badCall($exception->getStatusCode(),ApiStatusMessageResponse::ERROR, $exception->getMessage(),'Some error');
+        }
+
+        return $this->badCall(500,ApiStatusMessageResponse::ERROR,'Unexpected Exception. Try Later',$exception->getMessage());
+
+    }
+
+    public function convertValidationExceptionToResponse(ValidationException $e, $request): Response|JsonResponse|RedirectResponse|\Symfony\Component\HttpFoundation\Response
+    {
+        $errors = $e->validator->errors()->getMessages();
+
+        return $this->badCall(422,ApiStatusMessageResponse::ERROR, $errors,'Some data are missing');
     }
 }

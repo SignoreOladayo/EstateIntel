@@ -16,7 +16,8 @@ trait ApiResponder
         return response()->json($response);
     }
 
-    public function badCall($status_code, $status, $error, $reason){
+    public function badCall($status_code, $status, $error, $reason): JsonResponse
+    {
         $response = ["status_code" => $status_code, "status" => $status, "error" => $error, "reason" => $reason];
 
         return response()->json($response);

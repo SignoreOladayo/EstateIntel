@@ -4,12 +4,12 @@ namespace Tests\Feature;
 
 use App\Enum\ApiStatusMessageResponse;
 use App\Models\Book;
-use HelperTestCase;
+use Tests\Feature\HelperTestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
-class BookApiControllerTest extends TestCase
+class BookApiControllerTest extends HelperTestCase
 {
     use RefreshDatabase;
 
@@ -58,7 +58,7 @@ class BookApiControllerTest extends TestCase
      */
     public function testCanBeReadBookWithStatusCode200()
     {
-        Book::factory()->create();
+        $book = $this->createBook();
 
         $response = $this->get(route('books.index'));
 
@@ -66,24 +66,7 @@ class BookApiControllerTest extends TestCase
 
         $this->assertCount(1, Book::all());
 
-        $book = Book::where('id', 1)->first();
-
-        $response->assertStatus(200)->assertJson([
-            "status_code" => 200,
-            "status" => ApiStatusMessageResponse::SUCCESS,
-            "data" => [
-                [
-                    "id" => $book->id,
-                    "name" => $book->name,
-                    "isbn" => $book->isbn,
-                    "authors" => $book->authors,
-                    "number_of_pages" => $book->number_of_pages,
-                    "publisher" => $book->publisher,
-                    "country" => $book->country,
-                    "release_date" => $book->release_date
-                ]
-            ]
-        ]);
+        $response->assertStatus(200)->assertJson($this->response($book));
     }
 
     /**
@@ -151,7 +134,7 @@ class BookApiControllerTest extends TestCase
      */
     public function testBookCanBeDeleted()
     {
-        $book = Book::factory()->create();
+        $book = $this->createBook();
 
         $book_name = $book->book_name;
 
@@ -176,12 +159,11 @@ class BookApiControllerTest extends TestCase
      */
     public function testBookCanBeShown()
     {
-        $book = Book::factory()->create();
+        $book = $this->createBook();
 
         $this->assertCount(1, Book::all());
 
         $response = $this->get(route('books.show', $book->id));
-
 
         $response->assertStatus(200)->assertJson([
             "status_code" => 200,
@@ -199,23 +181,55 @@ class BookApiControllerTest extends TestCase
         ]);
     }
 
-    public function create_data(): array
-    {
-        return [
-            'name' => 'A Game Of Thrones',
-            'isbn' => '123-45',
-            'authors' => ['Test Author'],
-            'number_of_pages' => 456,
-            'publisher' => 'Test Publisher',
-            'country' => 'Nigeria',
-            'release_date' => '2022-03-04'
-        ];
+    /**
+     * Test if books can be search by name
+     *
+     * @return void
+     */
+    public function testBookCanBeSearchedWithNameOfBook(){
+        $book = $this->createBookWithState();
+        $searchParameter = ['search' => 'Book Example'];
+        $response = $this->call('GET', route('search.book'), $searchParameter);
+        $response->assertStatus(200)->assertJson($this->response($book));
+        $this->assertEquals($searchParameter['search'], $book->name);
     }
 
-    public function update_data(): array
-    {
-        return [
-            'name' => 'How to Become a Dev PRO',
-        ];
+    /**
+     * Test if books can be search by country
+     *
+     * @return void
+     */
+    public function testBookCanBeSearchedWithCountry(){
+        $book = $this->createBookWithState();
+        $searchParameter = ['search' => 'Nigeria'];
+        $response = $this->call('GET', route('search.book'), $searchParameter);
+        $response->assertStatus(200)->assertJson($this->response($book));
+        $this->assertEquals($searchParameter['search'], $book->country);
+    }
+
+    /**
+     * Test if books can be search by publisher
+     *
+     * @return void
+     */
+    public function testBookCanBeSearchedWithPublisher(){
+        $book = $this->createBookWithState();
+        $searchParameter = ['search' => 'Publishing'];
+        $response = $this->call('GET', route('search.book'), $searchParameter);
+        $response->assertStatus(200)->assertJson($this->response($book));
+        $this->assertEquals($searchParameter['search'], $book->publisher);
+    }
+
+    /**
+     * Test if books can be search by release date
+     *
+     * @return void
+     */
+    public function testBookCanBeSearchedWithReleasedDate(){
+        $book = $this->createBookWithState();
+        $searchParameter = ['search' => '2019-01-01'];
+        $response = $this->call('GET', route('search.book'), $searchParameter);
+        $response->assertStatus(200)->assertJson($this->response($book));
+        $this->assertEquals($searchParameter['search'], $book->release_date);
     }
 }

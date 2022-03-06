@@ -9,4 +9,4 @@ Route::get('external-books', [BookApiController::class, 'getBookThroughExternalA
 
 Route::resource('v1/books', BookApiController::class);
 
-Route::get('search', [BookApiController::class, 'search']);
+Route::get('search', [BookApiController::class, 'search'])->name('search.book');
